@@ -1,0 +1,15 @@
+.env
+__pycache__
+static/admin
+static/drf_api_logger
+static/drf-yasg
+static/rest_framework
+uploads
+media
+venv/
+log/
+env/
+*.json
+# Ignore Mac DS_Store files
+.DS_Store
+**/.DS_Store
