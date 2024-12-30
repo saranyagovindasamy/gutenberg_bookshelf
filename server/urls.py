@@ -41,15 +41,15 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=(permissions.IsAuthenticated,),
+    permission_classes=(permissions.AllowAny,),
 )
 
-admin.site.site_header = mark_safe('SolomonAI API <span style="font-size: x-small">'
+admin.site.site_header = mark_safe('Gutenberg API <span style="font-size: x-small">'
                                    f'({VERSION})</span>')
 urlpatterns = [
  
     path('admin/', admin.site.urls),
     path("api/v1/", include("bookshelf.urls")),
-    path("swagger/", schema_view.with_ui("swagger",
+    path("", schema_view.with_ui("swagger",
          cache_timeout=0), name="schema-swagger-ui"),
 ]

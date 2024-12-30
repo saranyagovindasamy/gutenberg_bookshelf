@@ -7,59 +7,94 @@ class Author(models.Model):
     name = models.CharField(max_length=128)
 
     class Meta:
-        db_table = 'books_authors'
-
-class Language(models.Model):
-    id = models.IntegerField(primary_key=True)
-    code = models.CharField(max_length=4)
-
-    class Meta:
-        db_table = 'books_languages'
-
-
-class Subject(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.TextField()
-
-    class Meta:
-        db_table = 'books_subjects'
-
-
-class Bookshelf(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'books_bookshelfs'
+        db_table = 'books_author'
 
 
 class Book(models.Model):
-    title = models.CharField(max_length=255)
-    genre = models.CharField(max_length=255, null=True, blank=True)
-    language = models.ForeignKey(Language, models.DO_NOTHING)
+    id = models.IntegerField(primary_key=True)
+    title = models.CharField(max_length=255)   
+    gutenberg_id = models.PositiveIntegerField(unique=True)
     download_count = models.IntegerField(default=0)
-    author = models.ManyToManyField(Author)
-    subjects =  models.ManyToManyField(Subject)
-    bookshelf = models.ManyToManyField(Bookshelf)
-    gutenberg_id = models.IntegerField(primary_key=True)
-    release_date = models.DateField()
-    etext_no = models.IntegerField()
+    media_type = models.CharField(max_length=16)
+    title = models.CharField(max_length=1024, null=True, blank=True)
+    authors = models.ManyToManyField(Author, related_name="books")
+    subjects = models.ManyToManyField("Subject", through="BookSubject", related_name="books")
+    bookshelves = models.ManyToManyField("Bookshelf", through="BookBookshelf", related_name="books")
+    languages = models.ManyToManyField("Language", through="BookLanguage", related_name="books")
+
  
     class Meta:
         db_table = 'books_book'
 
     def __str__(self):
         return self.title
+    
 
-
-class BookFormat(models.Model):
+class Bookshelf(models.Model):
     id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'books_bookshelf'
+
+    def __str__(self):
+        return self.name
+
+
+class Language(models.Model):
+    id = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=4)
+
+    class Meta:
+        db_table = 'books_language'
+
+    def __str__(self):
+        return self.code
+
+
+class Subject(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        db_table = 'books_subject'
+
+
+class Format(models.Model):
+    id = models.AutoField(primary_key=True)
     mime_type = models.CharField(max_length=32)
-    url = models.TextField()
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    url = models.URLField(max_length=256)
+    book = models.ForeignKey(Book, related_name="formats", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.mime_type
 
     class Meta:
         db_table = 'books_format'
     
-    def __str__(self):
-        return self.book.title
+
+class BookSubject(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    subject = models.ForeignKey("Subject", on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "books_book_subjects"
+
+
+class BookBookshelf(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    bookshelf = models.ForeignKey("Bookshelf", on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "books_book_bookshelves"
+
+
+class BookLanguage(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    language = models.ForeignKey("Language", on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table = "books_book_languages"
