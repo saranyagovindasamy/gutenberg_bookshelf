@@ -21,9 +21,9 @@ class BookListView(ListAPIView):
 
         # Filters
 
-        language = self.request.query_params.getlist('language', None)
+        language = self.request.query_params.get('language', None)
         if language:
-            queryset = queryset.filter(language__in=language)
+            queryset = queryset.filter(languages__code=language)
 
         mime_type = self.request.query_params.get('mime_type', None)
         if mime_type:
